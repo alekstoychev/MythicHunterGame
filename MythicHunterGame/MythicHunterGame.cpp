@@ -239,6 +239,10 @@ int main()
                 gameMap->EnemyKilled(encounter);
             }
         }
+        else
+        {
+            delete encounter;
+        }
     }
 
     
