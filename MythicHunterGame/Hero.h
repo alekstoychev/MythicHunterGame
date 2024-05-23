@@ -22,6 +22,7 @@ public:
 	// Returns the enemy's taken damage
 	double DealDamage(Character* enemy) override;
 	double TakeDamage(double damageAmount) override;
+	void Heal(double amount);
 
 	const bool IsAlive() const override;
 	const void ShowStats(std::ostream& ostr) const override;
@@ -35,6 +36,7 @@ public:
 	const void ShowInventory(std::ostream& ostr) const;
 	const void ShowCurrentWeapon(std::ostream& ostr) const;
 	const void ShowEquipped(std::ostream& ostr) const;
+
 
 private:
 	int mana;

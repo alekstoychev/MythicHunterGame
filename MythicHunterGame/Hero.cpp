@@ -64,6 +64,11 @@ double Hero::TakeDamage(double damageAmount)
 	return damageTaken;
 }
 
+void Hero::Heal(double amount)
+{
+	health += amount;
+}
+
 
 bool Hero::PickupNewItem(Equipment* newItem)
 {

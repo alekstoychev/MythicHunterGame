@@ -53,12 +53,17 @@ static void Combat(Hero* player, Monster* monster)
 
         if (!monster->IsAlive())
         {
+            playerLostHP *= 0.5;
             std::cout << "You killed it!" << '\n';
+            std::cout << "You recovered " << playerLostHP << " health." << '\n';
+            player->Heal(playerLostHP);
             continueButton = _getch();
             return;
         }
 
-        std::cout << "The monster attacked and hit you for " << monster->DealDamage(player) << '\n';
+        double damageTaken = monster->DealDamage(player);
+        playerLostHP += damageTaken;
+        std::cout << "The monster attacked and hit you for " << damageTaken << '\n';
         if (!player->IsAlive())
         {
             std::cout << "You died!" << '\n';        
@@ -165,6 +170,9 @@ int main()
 
         std::cout << '\n' << "Current Floor: " << currentFloor;
         std::cout << '\n' << "Highest reached floor: " << highestFloor << '\n';
+        std::cout << '\n';
+        std::cout << "Your stats:" << '\n';
+        player->ShowStats(std::cout);
 
         if (hasPickUp)
         {
