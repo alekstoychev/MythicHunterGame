@@ -55,7 +55,7 @@ Potion::Potion(std::string name, std::ostream& ostr) : Equipment(EquipmentType::
 		break;
 	}
 
-	ostr << " " << name << "!" << '\n';
+	ostr << " " << name << " potion!" << '\n';
 }
 
 Potion::~Potion()
@@ -95,8 +95,7 @@ const void Potion::GetItemStats(std::ostream& ostr) const
 		break;
 	}
 
-	ostr << rarityStr << name << '\n';
-	ostr << "Maga Restoration: " << manaRestore << '\n';
+	ostr << rarityStr << " " << name << " [" << "Maga Restoration: " << manaRestore << "]";
 }
 
 const double Potion::GetItemBonusStat() const

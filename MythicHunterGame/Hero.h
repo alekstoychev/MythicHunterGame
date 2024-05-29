@@ -31,7 +31,8 @@ public:
 	bool ChangeEquippedWeapon(int index);
 	bool ChangeEquippedArmor(int index);
 
-	const double SelectAndUseSpell(std::ostream& ostr, std::istream& istr, Character* enemy) const;
+	double SelectAndUseSpell(std::ostream& ostr, std::istream& istr, Character* enemy);
+	double UsePotion(std::ostream& ostr, std::istream& istr);
 
 	const void ShowInventory(std::ostream& ostr) const;
 	const void ShowCurrentWeapon(std::ostream& ostr) const;

@@ -107,12 +107,15 @@ const void Magic::GetItemStats(std::ostream& ostr) const
 		break;
 	}
 
-	ostr << rarityStr << name << '\n';
-	ostr << "Damage: " << damage << '\n';
-	ostr << "Spell Cost: " << spellCost << '\n';
+	ostr << rarityStr << " " << name << " [" << "Damage: " << damage << ", Spell Cost: " << spellCost << "]";
 }
 
 const double Magic::GetItemBonusStat() const
 {
 	return damage;
+}
+
+const double Magic::GetSpellCost() const
+{
+	return spellCost;
 }

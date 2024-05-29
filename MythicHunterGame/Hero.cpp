@@ -1,4 +1,5 @@
 #include "Hero.h"
+#include "Magic.h"
 
 Hero::Hero(int _power, int _mana, double _health) : Character(_power, _health), mana(_mana), equippedArmor(nullptr)
 {
@@ -109,7 +110,7 @@ bool Hero::ChangeEquippedArmor(int index)
 	return false;
 }
 
-const double Hero::SelectAndUseSpell(std::ostream& ostr, std::istream& istr, Character* enemy) const
+double Hero::SelectAndUseSpell(std::ostream& ostr, std::istream& istr, Character* enemy)
 {
 	int spellIndexes[inventory_size] = { };
 	int curSpellIdx = 0;
@@ -125,15 +126,77 @@ const double Hero::SelectAndUseSpell(std::ostream& ostr, std::istream& istr, Cha
 			curSpellIdx++;
 		}
 	}
-
-	int input;
-	istr >> input;
-	if (input >= curSpellIdx)
+	if (curSpellIdx == 0)
 	{
 		return 0.0;
 	}
 
+	int input;
+	istr >> input;
+	if (input > curSpellIdx || input < 1)
+	{
+		return 0.0;
+	}
+
+	input--;
+
+	// downcasting
+	// probably not the best idea
+	Magic* selectedSpell = dynamic_cast<Magic*>(inventory[spellIndexes[input]]);
+
+	// incase it failed to cast
+	if (selectedSpell == nullptr)
+	{
+		return 0.0;
+	}
+
+	if (mana < selectedSpell->GetSpellCost())
+	{
+		ostr << "Not enough mana!" << '\n';
+		return 0.0;
+	}
+
+	mana -= selectedSpell->GetSpellCost();
+
 	return enemy->TakeDamage(inventory[spellIndexes[input]]->GetItemBonusStat());
+}
+
+double Hero::UsePotion(std::ostream& ostr, std::istream& istr)
+{
+	int spellIndexes[inventory_size] = { };
+	int curSpellIdx = 0;
+	for (int i = 0; i < inventory.size(); i++)
+	{
+		if (inventory[i]->GetType() == EquipmentType::Usable)
+		{
+			ostr << curSpellIdx + 1 << ". ";
+			inventory[i]->GetItemStats(ostr);
+			ostr << '\n';
+
+			spellIndexes[curSpellIdx] = i;
+			curSpellIdx++;
+		}
+	}
+	if (curSpellIdx == 0)
+	{
+		ostr << "You have no potions." << '\n';
+		return 0.0;
+	}
+
+	int input;
+	istr >> input;
+	if (input > curSpellIdx || input < 1)
+	{
+		return 0.0;
+	}
+
+	input--;
+
+	int manaRestore = inventory[spellIndexes[input]]->GetItemBonusStat();
+	inventory.erase(inventory.begin() + spellIndexes[input]);
+	mana += manaRestore;
+
+	return manaRestore;
 }
 
 const void Hero::ShowInventory(std::ostream& ostr) const

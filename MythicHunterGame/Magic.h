@@ -12,6 +12,7 @@ public:
 	const void GetItemStats(std::ostream& ostr) const override;
 
 	const double GetItemBonusStat() const override;
+	const double GetSpellCost() const;
 private:
 	int damage;
 	int spellCost;

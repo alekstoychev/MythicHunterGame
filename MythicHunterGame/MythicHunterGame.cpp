@@ -7,6 +7,9 @@
 
 #include "Weapon.h"
 #include "Armor.h"
+#include "Magic.h"
+#include "Potion.h"
+
 #include "Map.h"
 
 #include "UtilFuncs.h"
@@ -44,11 +47,14 @@ static void Combat(Hero* player, Monster* monster)
                 std::cout << '\n' << "You attacked and hit it for " << player->DealDamage(monster) << '\n';
                 break;
             case 2:
-                std::cout << "Select a spell to use: ";
-                player->SelectAndUseSpell(std::cout, std::cin, monster);
+                std::cout << "Select a spell to use: " << '\n';
+                std::cout << "You attacked and hit it for " << player->SelectAndUseSpell(std::cout, std::cin, monster) << '\n';
                 break;
             case 3:
-                break;
+                std::cout << "You used a mana potion and restored " << player->UsePotion(std::cout, std::cin) << '\n';
+                continueButton = _getch();
+                system("cls");
+                continue;
         }
 
         if (!monster->IsAlive())
@@ -178,14 +184,20 @@ int main()
         {
             std::cout << '\n';
             std::cout << "You have picked up a ";
-            int randomItem = randomNumberInt(1, 2);
+            int randomItem = randomNumberInt(0, 3);
             switch (randomItem)
             {
-            case 1:
+            case 0:
                 player->PickupNewItem(new Weapon("Sword", std::cout));
                 break;
-            case 2:
+            case 1:
                 player->PickupNewItem(new Armor("Armor", std::cout));
+                break;
+            case 2:
+                player->PickupNewItem(new Magic("Lightning spell", std::cout));
+                break;
+            case 3:
+                player->PickupNewItem(new Potion("Mana", std::cout));
                 break;
             }
             std::cout << '\n';

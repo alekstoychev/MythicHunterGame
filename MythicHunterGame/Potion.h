@@ -5,6 +5,7 @@
 // For now the potion will only restore mana
 class Potion : public Equipment
 {
+public:
 	Potion(std::string name);
 	Potion(std::string name, std::ostream& ostr);
 	~Potion();
