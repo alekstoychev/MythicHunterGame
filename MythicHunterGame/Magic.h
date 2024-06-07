@@ -5,8 +5,7 @@ class Magic : public Equipment
 {
 public:
 	Magic(std::string name);
-	Magic(std::string name, std::ostream& ostr);
-	~Magic();
+	virtual ~Magic();
 
 	const EquipmentType GetType() const override;
 	const void GetItemStats(std::ostream& ostr) const override;

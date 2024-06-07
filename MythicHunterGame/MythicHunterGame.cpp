@@ -1,7 +1,6 @@
 #include <iostream>
-#include <windows.h> // used for Sleep()
+#include <conio.h> // used for _getch()
 
-#include "Character.h"
 #include "Hero.h"
 #include "Monster.h"
 
@@ -10,158 +9,49 @@
 #include "Magic.h"
 #include "Potion.h"
 
+#include "CombatSystem.h"
+#include "InventoryManager.h"
+
 #include "Map.h"
 
 #include "UtilFuncs.h"
 
-#include <conio.h>
+const char* game_version = "1.4.0";
 
-
-static void Combat(Hero* player, Monster* monster)
+const static void WelcomeScreen()
 {
+    std::cout << "Welcome to Mythic Hunter " << game_version << '\n';
+    std::cout << '\n' << "Controls are: " << '\n';
+    std::cout << "W A S D - moving around" << '\n';
+    std::cout << "I - open inventory" << '\n';
+    std::cout << "R - reset map" << '\n';
+    std::cout << "Q - quit game" << '\n';
+    std::cout << '\n' << '\n' << "Game does not have a save game system yet!!!!" << '\n';
+    std::cout << "Press any key to continue...";
+    _getch();
     system("cls");
-    std::cout << "You have entered combat!" << '\n';
-    double playerLostHP = 0;
-    int continueButton;
-    while (true)
-    {
-        std::cout << "Your stats:" << '\n';
-        player->ShowStats(std::cout);
-        std::cout << '\n';
-        std::cout << "Enemy stats:" << '\n';
-        monster->ShowStats(std::cout);
-        std::cout << '\n';
-        std::cout << "What would you like to do?" << '\n';
-        std::cout << "1. Weapon attack" << '\n';
-        std::cout << "2. Magic Spell" << '\n';
-        std::cout << "3. Use item" << '\n';
-        std::cout << "Use the numbers" << '\n';
-
-        int input;
-        std::cin >> input;
-        switch (input)
-        {
-            case 1:
-                std::cout << "Currently equipped weapon: ";
-                player->ShowCurrentWeapon(std::cout);
-                std::cout << '\n' << "You attacked and hit it for " << player->DealDamage(monster) << '\n';
-                break;
-            case 2:
-                std::cout << "Select a spell to use: " << '\n';
-                std::cout << "You attacked and hit it for " << player->SelectAndUseSpell(std::cout, std::cin, monster) << '\n';
-                break;
-            case 3:
-                std::cout << "You used a mana potion and restored " << player->UsePotion(std::cout, std::cin) << '\n';
-                continueButton = _getch();
-                system("cls");
-                continue;
-        }
-
-        if (!monster->IsAlive())
-        {
-            playerLostHP *= 0.5;
-            std::cout << "You killed it!" << '\n';
-            std::cout << "You recovered " << playerLostHP << " health." << '\n';
-            player->Heal(playerLostHP);
-            continueButton = _getch();
-            return;
-        }
-
-        double damageTaken = monster->DealDamage(player);
-        playerLostHP += damageTaken;
-        std::cout << "The monster attacked and hit you for " << damageTaken << '\n';
-        if (!player->IsAlive())
-        {
-            std::cout << "You died!" << '\n';        
-            continueButton = _getch();
-            return;
-        }
-
-        continueButton = _getch();
-        system("cls");
-    }
 }
-
-static void InventoryManager(Hero* player)
-{
-    int input;
-    int input2;
-    int input3;
-    int input4;
-
-    system("cls");
-    std::ios::fixed;
-    std::cout.precision(2);
-    player->ShowInventory(std::cout);
-
-    std::cout << '\n' << "Currently equipped:" << '\n';
-    player->ShowEquipped(std::cout);
-
-    std::cout << '\n' << "Would you like to change anything?" << '\n';
-    std::cout << "1. yes" << '\n';
-    std::cout << "2. no" << '\n';
-    std::cout << "Use the numbers" << '\n';
-
-    std::cin >> input;
-    if (input == 1)
-    {
-        std::cout << "What would you like to change?" << '\n';
-        std::cout << "1. Weapon" << '\n';
-        std::cout << "2. Armor" << '\n';
-
-        std::cin >> input2;
-        if (input2 == 1)
-        {
-            std::cout << "Enter the number of the weapon you want to change with:" << '\n';
-
-            std::cin >> input3;
-            if (player->ChangeEquippedWeapon(input3 - 1))
-            {
-                std::cout << "Successful." << '\n';
-            }
-            else
-            {
-                std::cout << "Unsuccessful" << '\n';
-            }
-        }
-        else if (input2 == 2)
-        {
-            std::cout << "Enter the number of the armor you want to change with" << '\n';
-
-            std::cin >> input3;
-            if (player->ChangeEquippedArmor(input3 - 1))
-            {
-                std::cout << "Successful." << '\n';
-            }
-            else
-            {
-                std::cout << "Unsuccessful" << '\n';
-            }
-        }
-        
-        input4 = _getch();
-    }
-}
-
 
 int main()
 {
-    Hero* player = new Hero(10, 5, 20);
+    Hero* player = new Hero(10, 5, 20, 0, 0);
     Map* gameMap = new Map();
+    InventoryManager* inventoryManager = new InventoryManager();
+    CombatSystem* combatSystem = new CombatSystem();
 
     bool isLevelComplete = false;
-    bool hasPickUp = false;
     bool isPlayerDone = false;
-
 
     int currentFloor = 1;
     int highestFloor = 1;
 
-    
+    std::string pickUpMessage;
+
+    WelcomeScreen();
     while (!isPlayerDone)
     {
         system("cls");
-        gameMap->PrintMap(isLevelComplete);
+        gameMap->PrintMap(isLevelComplete, player);
         if (isLevelComplete)
         {
             isLevelComplete = false;
@@ -179,37 +69,15 @@ int main()
         std::cout << '\n';
         std::cout << "Your stats:" << '\n';
         player->ShowStats(std::cout);
+        std::cout << '\n';
 
-        if (hasPickUp)
+        if (!pickUpMessage.empty())
         {
+            std::cout << pickUpMessage << '\n';
             std::cout << '\n';
-            std::cout << "You have picked up a ";
-            int randomItem = randomNumberInt(0, 3);
-            switch (randomItem)
-            {
-            case 0:
-                player->PickupNewItem(new Weapon("Sword", std::cout));
-                break;
-            case 1:
-                player->PickupNewItem(new Armor("Armor", std::cout));
-                break;
-            case 2:
-                player->PickupNewItem(new Magic("Lightning spell", std::cout));
-                break;
-            case 3:
-                player->PickupNewItem(new Potion("Mana", std::cout));
-                break;
-            }
-            std::cout << '\n';
+            pickUpMessage.clear();
         }
-        else
-        {
-            
-            std::cout << '\n';
-        }
-
-        std::cout << "Next direction (wasd): ";
-
+        std::cout << "Next action (wasd, r, i, q): ";
 
         char input = _getch();
         /*
@@ -218,27 +86,27 @@ int main()
         */
 
         Monster* encounter = new Monster();
-        hasPickUp = false;
         bool hasEnemy = false;
+
         switch (input)
         {
         case 'w':
-            gameMap->MovePlayerUp(hasPickUp, hasEnemy, encounter);
+            gameMap->MovePlayerUp(hasEnemy, encounter, player, pickUpMessage);
             break;
         case 's':
-            gameMap->MovePlayerDown(hasPickUp, hasEnemy, encounter);
+            gameMap->MovePlayerDown(hasEnemy, encounter, player, pickUpMessage);
             break;
         case 'a':
-            gameMap->MovePlayerLeft(hasPickUp, hasEnemy, encounter);
+            gameMap->MovePlayerLeft(hasEnemy, encounter, player, pickUpMessage);
             break;
         case 'd':
-            gameMap->MovePlayerRight(hasPickUp, hasEnemy, encounter);
+            gameMap->MovePlayerRight(hasEnemy, encounter, player, pickUpMessage);
             break;
         case 'r':
             gameMap->GenerateNewMap();
             break;
         case 'i':
-            InventoryManager(player);
+            inventoryManager->OpenInventory(player);
             break;
         case 'q':
             isPlayerDone = true;
@@ -249,7 +117,7 @@ int main()
 
         if (hasEnemy)
         {
-            Combat(player, encounter);
+            combatSystem->BeginCombat(player, encounter);
             if (!player->IsAlive())
             {
                 isPlayerDone = true;

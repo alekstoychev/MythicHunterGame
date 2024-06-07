@@ -17,6 +17,8 @@ public:
 
 	const virtual double GetItemBonusStat() const = 0;
 
+	const virtual std::string PickUpNotification() const;
+
 protected:
 	std::string name;
 	Rarity rarity;

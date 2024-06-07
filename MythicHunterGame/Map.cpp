@@ -2,6 +2,12 @@
 #include "UtilFuncs.h"
 #include <iostream>
 
+
+#include "Potion.h"
+#include "Magic.h"
+#include "Armor.h"
+#include "Weapon.h"
+
 void Map::CheckSoftLocksInGeneration()
 {
 	if (map[0][1]->type  != "empty")
@@ -56,18 +62,18 @@ Map::~Map()
 	}
 }
 
-Map::Tile::Tile(char _symbol, std::string _type) : symbol(_symbol), type(_type), monster(nullptr) {}
+Map::Tile::Tile(char _symbol, std::string _type) : symbol(_symbol), type(_type), pickUp(nullptr), monster(nullptr) {}
 
-//Map::Tile::Tile(char _symbol, std::string _type, Weapon* _pickUp) : symbol(_symbol), type(_type), pickUp(_pickUp), monster(nullptr) {}
+Map::Tile::Tile(char _symbol, std::string _type, Equipment* _pickUp) : symbol(_symbol), type(_type), pickUp(_pickUp), monster(nullptr) {}
 
-Map::Tile::Tile(char _symbol, std::string _type, Monster* _monster) : symbol(_symbol), type(_type), monster(_monster) {}
+Map::Tile::Tile(char _symbol, std::string _type, Monster* _monster) : symbol(_symbol), type(_type), pickUp(nullptr), monster(_monster) {}
 
 Map::Tile::~Tile()
 {
 	symbol = ' ';
 	type = " ";
-	//delete pickUp;
-	//delete monster;
+	delete pickUp;
+	delete monster;
 }
 
 void Map::GenerateNewMap()
@@ -85,7 +91,7 @@ void Map::GenerateNewMap()
 			}
 			else if (random > 70)
 			{
-				map[i][j] = (new Tile('I', "pickUp"));
+				map[i][j] = (new Tile('I', "pickUp", GenerateItem()));
 			}
 			else if (random > 60)
 			{
@@ -99,9 +105,22 @@ void Map::GenerateNewMap()
 	}
 
 	CheckSoftLocksInGeneration();
+}
 
-	playerX = 0;
-	playerY = 0;
+Equipment* Map::GenerateItem() const
+{
+	int randomItem = randomNumberInt(0, 3);
+	switch (randomItem)
+	{
+	case 0:
+		return new Weapon("Sword");
+	case 1:
+		return new Armor("Armor");
+	case 2:
+		return new Magic("Lightning spell");
+	case 3:
+		return new Potion("Mana");
+	}
 }
 
 void Map::EnemyKilled(Monster* monster)
@@ -117,6 +136,27 @@ void Map::EnemyKilled(Monster* monster)
 	}
 }
 
+const bool Map::PlayerPickUpItem(Hero* player, Tile* tile, std::string& output) const
+{
+	if (tile->pickUp != nullptr)
+	{
+		if (player->PickupNewItem(tile->pickUp))
+		{
+			output = tile->pickUp->PickUpNotification();
+			return true;
+		}
+		else
+		{
+			output = "Inventory is full";
+			return false;
+		}
+	}
+
+	output = "invalid item in tile";
+
+	return false;
+}
+
 bool Map::IsPositionObstructed(const int y, const int x) const
 {
 	if (map[y][x]->type == "empty" || map[y][x]->type == "pickUp" || map[y][x]->type == "monster")
@@ -126,90 +166,117 @@ bool Map::IsPositionObstructed(const int y, const int x) const
 	return true;
 }
 
-void Map::MovePlayerUp(bool& hasPickUp, bool& hasEnemy, Monster*& monster)
+void Map::MovePlayerUp(bool& hasEnemy, Monster*& monster, Hero* player, std::string& output)
 {
-	if (playerY > 0 && !IsPositionObstructed(playerY - 1, playerX))
+	const int playerX = player->GetPositionX();
+	const int playerY = player->GetPositionY();
+
+	int newPosition = playerY - 1;
+	if (playerY > 0 && !IsPositionObstructed(newPosition, playerX))
 	{
-		if (map[playerY - 1][playerX]->type == "pickUp")
+		if (map[newPosition][playerX]->type == "pickUp")
 		{
-			hasPickUp = true;
-			map[playerY - 1][playerX]->type = "empty";
-			map[playerY - 1][playerX]->symbol = '.';
+			if (PlayerPickUpItem(player, map[newPosition][playerX], output))
+			{
+				map[newPosition][playerX]->type = "empty";
+				map[newPosition][playerX]->symbol = '.';
+			}
 		}
-		else if (map[playerY - 1][playerX]->type == "monster")
+		else if (map[newPosition][playerX]->type == "monster")
 		{
 			hasEnemy = true;
-			monster = map[playerY - 1][playerX]->monster;
+			monster = map[newPosition][playerX]->monster;
 		}
 
-		playerY--;
+		player->MoveUp();
 	}
 
 }
 
-void Map::MovePlayerDown(bool& hasPickUp, bool& hasEnemy, Monster*& monster)
+void Map::MovePlayerDown(bool& hasEnemy, Monster*& monster, Hero* player, std::string& output)
 {
-	if (playerY < (map_sizeY - 1) && !IsPositionObstructed(playerY + 1, playerX))
+	const int playerX = player->GetPositionX();
+	const int playerY = player->GetPositionY();
+
+	int newPosition = playerY + 1;
+	if (playerY < (map_sizeY - 1) && !IsPositionObstructed(newPosition, playerX))
 	{
-		if (map[playerY + 1][playerX]->type == "pickUp")
+		if (map[newPosition][playerX]->type == "pickUp")
 		{
-			hasPickUp = true;
-			map[playerY + 1][playerX]->type = "empty";
-			map[playerY + 1][playerX]->symbol = '.';
+			if (PlayerPickUpItem(player, map[newPosition][playerX], output))
+			{
+				map[newPosition][playerX]->type = "empty";
+				map[newPosition][playerX]->symbol = '.';
+			}
 		}
-		else if (map[playerY + 1][playerX]->type == "monster")
+		else if (map[newPosition][playerX]->type == "monster")
 		{
 			hasEnemy = true;
-			monster = map[playerY + 1][playerX]->monster;
+			monster = map[newPosition][playerX]->monster;
 		}
 
-		playerY++;
+		player->MoveDown();
 	}
 
 }
-void Map::MovePlayerLeft(bool& hasPickUp, bool& hasEnemy, Monster*& monster)
+void Map::MovePlayerLeft(bool& hasEnemy, Monster*& monster, Hero* player, std::string& output)
 {
-	if (playerX > 0 && !IsPositionObstructed(playerY, playerX - 1))
+	const int playerX = player->GetPositionX();
+	const int playerY = player->GetPositionY();
+
+	int newPosition = playerX - 1;
+	if (playerX > 0 && !IsPositionObstructed(playerY, newPosition))
 	{
-		if (map[playerY][playerX - 1]->type == "pickUp")
+		if (map[playerY][newPosition]->type == "pickUp")
 		{
-			hasPickUp = true;
-			map[playerY][playerX - 1]->type = "empty";
-			map[playerY][playerX - 1]->symbol = '.';
+			if (PlayerPickUpItem(player, map[playerY][newPosition], output))
+			{
+				map[playerY][newPosition]->type = "empty";
+				map[playerY][newPosition]->symbol = '.';
+			}
 		}
-		else if (map[playerY][playerX - 1]->type == "monster")
+		else if (map[playerY][newPosition]->type == "monster")
 		{
 			hasEnemy = true;
-			monster = map[playerY][playerX - 1]->monster;
+			monster = map[playerY][newPosition]->monster;
 		}
 
-		playerX--;
+		player->MoveLeft();
 	}
 
 }
-void Map::MovePlayerRight(bool& hasPickUp, bool& hasEnemy, Monster*& monster)
+void Map::MovePlayerRight(bool& hasEnemy, Monster*& monster, Hero* player, std::string& output)
 {
-	if (playerX < (map_sizeX - 1) && !IsPositionObstructed(playerY, playerX + 1))
+	int playerX = player->GetPositionX();
+	int playerY = player->GetPositionY();
+
+	int newPosition = playerX + 1;
+	if (playerX < (map_sizeX - 1) && !IsPositionObstructed(playerY, newPosition))
 	{
-		if (map[playerY][playerX + 1]->type == "pickUp")
+		if (map[playerY][newPosition]->type == "pickUp")
 		{
-			hasPickUp = true;
-			map[playerY][playerX + 1]->type = "empty";
-			map[playerY][playerX + 1]->symbol = '.';
+			if (PlayerPickUpItem(player, map[playerY][newPosition], output))
+			{
+				map[playerY][newPosition]->type = "empty";
+				map[playerY][newPosition]->symbol = '.';
+			}
 		}
-		if (map[playerY][playerX + 1]->type == "monster")
+		if (map[playerY][newPosition]->type == "monster")
 		{
 			hasEnemy = true;
-			monster = map[playerY][playerX + 1]->monster;
+			monster = map[playerY][newPosition]->monster;
 		}
 
-		playerX++;
+		player->MoveRight();
 	}
 
 }
 
-const void Map::PrintMap(bool& isPlayerFinished) const
+const void Map::PrintMap(bool& isPlayerFinished, Hero* player) const
 {
+	int playerX = player->GetPositionX();
+	int playerY = player->GetPositionY();
+
 	for (int i = 0; i < map_sizeX; i++)
 	{
 		for (int j = 0; j < map_sizeY; j++)
@@ -228,7 +295,7 @@ const void Map::PrintMap(bool& isPlayerFinished) const
 
 	if (playerX == map_sizeX - 1 && playerY == map_sizeY - 1)
 	{
-		std::cout << '\n' << "You Win!" << '\n';
 		isPlayerFinished = true;
+		player->MoveToStart();
 	}
 }

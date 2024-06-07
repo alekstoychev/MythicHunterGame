@@ -25,38 +25,6 @@ Armor::Armor(std::string name) : Equipment(EquipmentType::Defensive, name), dama
 	}
 }
 
-Armor::Armor(std::string name, std::ostream& ostr) : Equipment(EquipmentType::Defensive, name), damageReduction(0)
-{
-	switch (rarity)
-	{
-	case Rarity::Common:
-		ostr << "common";
-		damageReduction = randomNumberDouble(0.05, 0.10);
-		break;
-	case Rarity::Uncommon:
-		ostr << "uncommon";
-		damageReduction = randomNumberDouble(0.10, 0.25);
-		break;
-	case Rarity::Rare:
-		ostr << "rare";
-		damageReduction = randomNumberDouble(0.25, 0.30);
-		break;
-	case Rarity::Epic:
-		ostr << "epic";
-		damageReduction = randomNumberDouble(0.30, 0.35);
-		break;
-	case Rarity::Legendary:
-		ostr << "legendary";
-		damageReduction = randomNumberDouble(0.35, 0.45);
-		break;
-	case Rarity::Mythic:
-		ostr << "mythic";
-		damageReduction = randomNumberDouble(0.45, 0.50);
-		break;
-	}
-	ostr << " " << name << "!" << '\n';
-}
-
 const EquipmentType Armor::GetType() const
 {
 	return type;

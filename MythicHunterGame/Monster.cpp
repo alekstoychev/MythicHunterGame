@@ -1,14 +1,10 @@
 #include "Monster.h"
 
-Monster::Monster() : Character(1, 1), positionX(0), positionY(0) {}
+Monster::Monster() : Character(1, 1, 0, 0) {}
 
-Monster::Monster(int _power, double _health, int _positionX, int _positionY) : Character(_power, _health), positionX(_positionX), positionY(_positionY) {}
+Monster::Monster(int _power, double _health, int _positionX, int _positionY) : Character(_power, _health, _positionX, _positionY) {}
 
-Monster::Monster(const Monster& other) : Character(other)
-{
-	positionX = other.positionX;
-	positionY = other.positionY;
-}
+Monster::Monster(const Monster& other) : Character(other) {}
 
 Monster::~Monster()
 {

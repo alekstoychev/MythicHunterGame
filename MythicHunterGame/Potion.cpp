@@ -25,39 +25,6 @@ Potion::Potion(std::string name) : Equipment(EquipmentType::Usable, name)
 	}
 }
 
-Potion::Potion(std::string name, std::ostream& ostr) : Equipment(EquipmentType::Usable, name)
-{
-	switch (rarity)
-	{
-	case Rarity::Common:
-		ostr << "common";
-		manaRestore = randomNumberInt(1, 5);
-		break;
-	case Rarity::Uncommon:
-		ostr << "uncommon";
-		manaRestore = randomNumberInt(5, 10);
-		break;
-	case Rarity::Rare:
-		ostr << "rare";
-		manaRestore = randomNumberInt(10, 15);
-		break;
-	case Rarity::Epic:
-		ostr << "epic";
-		manaRestore = randomNumberInt(15, 20);
-		break;
-	case Rarity::Legendary:
-		ostr << "legendary";
-		manaRestore = randomNumberInt(20, 25);
-		break;
-	case Rarity::Mythic:
-		ostr << "mythic";
-		manaRestore = randomNumberInt(25, 30);
-		break;
-	}
-
-	ostr << " " << name << " potion!" << '\n';
-}
-
 Potion::~Potion()
 {
 	rarity = Rarity::Invalid;

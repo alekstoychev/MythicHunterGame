@@ -129,8 +129,10 @@
   <ItemGroup>
     <ClCompile Include="Armor.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="CombatSystem.cpp" />
     <ClCompile Include="Equipment.cpp" />
     <ClCompile Include="Hero.cpp" />
+    <ClCompile Include="InventoryManager.cpp" />
     <ClCompile Include="Magic.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Monster.cpp" />
@@ -142,9 +144,11 @@
   <ItemGroup>
     <ClInclude Include="Armor.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="CombatSystem.h" />
     <ClInclude Include="EnumTypes.h" />
     <ClInclude Include="Equipment.h" />
     <ClInclude Include="Hero.h" />
+    <ClInclude Include="InventoryManager.h" />
     <ClInclude Include="Magic.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Monster.h" />

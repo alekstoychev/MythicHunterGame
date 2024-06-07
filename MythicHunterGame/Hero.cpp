@@ -1,7 +1,7 @@
 #include "Hero.h"
 #include "Magic.h"
 
-Hero::Hero(int _power, int _mana, double _health) : Character(_power, _health), mana(_mana), equippedArmor(nullptr)
+Hero::Hero(int _power, int _mana, double _health, int _positionX, int _positionY) : Character(_power, _health, _positionX, _positionY), mana(_mana), equippedArmor(nullptr)
 {
 	Weapon* newWeapon = new Weapon("Sword");
 
@@ -71,6 +71,7 @@ void Hero::Heal(double amount)
 }
 
 
+// Returns true if it has space in the storage and has successfully added the item
 bool Hero::PickupNewItem(Equipment* newItem)
 {
 	if (inventory.size() < inventory_size)
@@ -222,6 +223,42 @@ const void Hero::ShowEquipped(std::ostream& ostr) const
 		equippedArmor->GetItemStats(ostr);
 		ostr << '\n';
 	}
+}
+
+const bool Hero::IsInventoryFull() const
+{
+	if (inventory.size() >= inventory_size)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void Hero::MoveUp()
+{
+	positionY--;
+}
+
+void Hero::MoveDown()
+{
+	positionY++;
+}
+
+void Hero::MoveLeft()
+{
+	positionX--;
+}
+
+void Hero::MoveRight()
+{
+	positionX++;
+}
+
+void Hero::MoveToStart()
+{
+	positionX = 0;
+	positionY = 0;
 }
 
 const void Hero::ShowCurrentWeapon(std::ostream& ostr) const

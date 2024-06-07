@@ -16,8 +16,9 @@ class Monster;
 class Hero : public Character
 {
 public:
-	Hero(int _power, int _mana, double _health);
-	~Hero();
+	Hero(int _power, int _mana, double _health, int _positionX, int _positionY);
+	Hero(const Hero& other) = delete;
+	virtual ~Hero();
 
 	// Returns the enemy's taken damage
 	double DealDamage(Character* enemy) override;
@@ -37,7 +38,13 @@ public:
 	const void ShowInventory(std::ostream& ostr) const;
 	const void ShowCurrentWeapon(std::ostream& ostr) const;
 	const void ShowEquipped(std::ostream& ostr) const;
+	const bool IsInventoryFull() const;
 
+	void MoveUp();
+	void MoveDown();
+	void MoveLeft();
+	void MoveRight();
+	void MoveToStart();
 
 private:
 	int mana;

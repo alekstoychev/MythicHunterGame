@@ -36,3 +36,34 @@ Equipment::~Equipment()
 	type = EquipmentType::Invalid;
 	name = std::string();
 }
+
+const std::string Equipment::PickUpNotification() const
+{
+	std::string output = "You picked up a ";
+
+	switch (rarity)
+	{
+	case Rarity::Common:
+		output += "common";
+		break;
+	case Rarity::Uncommon:
+		output += "uncommon";
+		break;
+	case Rarity::Rare:
+		output += "rare";
+		break;
+	case Rarity::Epic:
+		output += "epic";
+		break;
+	case Rarity::Legendary:
+		output += "legendary";
+		break;
+	case Rarity::Mythic:
+		output += "mythic";
+		break;
+	}
+
+	output += " " + name + "!";
+
+	return output;
+}

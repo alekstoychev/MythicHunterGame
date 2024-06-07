@@ -31,45 +31,6 @@ Magic::Magic(std::string name) : Equipment(EquipmentType::Spell, name)
 	}
 }
 
-Magic::Magic(std::string name, std::ostream& ostr) : Equipment(EquipmentType::Spell, name)
-{
-	switch (rarity)
-	{
-	case Rarity::Common:
-		ostr << "common";
-		damage = randomNumberInt(5, 9);
-		spellCost = 5;
-		break;
-	case Rarity::Uncommon:
-		ostr << "uncommon";
-		damage = randomNumberInt(9, 11);
-		spellCost = 10;
-		break;
-	case Rarity::Rare:
-		ostr << "rare";
-		damage = randomNumberInt(11, 14);
-		spellCost = 15;
-		break;
-	case Rarity::Epic:
-		ostr << "epic";
-		damage = randomNumberInt(14, 16);
-		spellCost = 20;
-		break;
-	case Rarity::Legendary:
-		ostr << "legendary";
-		damage = randomNumberInt(16, 18);
-		spellCost = 25;
-		break;
-	case Rarity::Mythic:
-		ostr << "mythic";
-		damage = randomNumberInt(18, 20);
-		spellCost = 30;
-		break;
-	}
-
-	ostr << " " << name << "!" << '\n';
-}
-
 Magic::~Magic()
 {
 	rarity = Rarity::Invalid;

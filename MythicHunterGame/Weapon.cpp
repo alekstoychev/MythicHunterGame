@@ -1,37 +1,5 @@
 #include "Weapon.h"
 
-Weapon::Weapon(std::string name, std::ostream& ostr) : Equipment(EquipmentType::Offensive, name), bonusDamagePercent(0)
-{
-	switch (rarity)
-	{
-		case Rarity::Common:
-			ostr << "common";
-			bonusDamagePercent = randomNumberDouble(1.01, 1.10);
-			break;
-		case Rarity::Uncommon:
-			ostr << "uncommon";
-			bonusDamagePercent = randomNumberDouble(1.10, 1.20);
-			break;
-		case Rarity::Rare:
-			ostr << "rare";
-			bonusDamagePercent = randomNumberDouble(1.20, 1.30);
-			break;
-		case Rarity::Epic:
-			ostr << "epic";
-			bonusDamagePercent = randomNumberDouble(1.30, 1.40);
-			break;
-		case Rarity::Legendary:
-			ostr << "legendary";
-			bonusDamagePercent = randomNumberDouble(1.40, 1.50);
-			break;
-		case Rarity::Mythic:
-			ostr << "mythic";
-			bonusDamagePercent = randomNumberDouble(1.50, 1.60);
-			break;
-	}
-	ostr << " " << name << "!" << '\n';
-}
-
 Weapon::Weapon(std::string name) : Equipment(EquipmentType::Offensive, name), bonusDamagePercent(0)
 {
 	switch (rarity)

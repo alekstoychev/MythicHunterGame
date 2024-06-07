@@ -7,8 +7,7 @@ class Potion : public Equipment
 {
 public:
 	Potion(std::string name);
-	Potion(std::string name, std::ostream& ostr);
-	~Potion();
+	virtual ~Potion();
 
 	const EquipmentType GetType() const override;
 	const void GetItemStats(std::ostream& ostr) const override;
