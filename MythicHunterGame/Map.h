@@ -25,7 +25,11 @@ public:
 		Tile(char _symbol, std::string _type);
 		Tile(char _symbol, std::string _type, Equipment* _pickUp);
 		Tile(char _symbol, std::string _type, Monster* _enemy);
+		const void ClearTile();
 		~Tile();
+
+		const bool SaveData(std::ostream& out) const;
+		const bool LoadData(std::istream& in);
 	};
 
 	void MovePlayerUp   (bool& hasEnemy, Monster*& monster, Hero* player, std::string& output);
@@ -39,6 +43,9 @@ public:
 
 	void EnemyKilled(Monster* monster);
 	const bool PlayerPickUpItem(Hero* player, Tile* tile, std::string& output) const;
+
+	const bool SaveData(std::ostream& out) const;
+	const bool LoadData(std::istream& in);
 
 private:
 

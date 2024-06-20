@@ -10,9 +10,4 @@ public:
 
 	const EquipmentType GetType() const override;
 	const void GetItemStats(std::ostream& ostr) const override;
-
-	const double GetItemBonusStat() const override;
-
-private:
-	double damageReduction;
 };

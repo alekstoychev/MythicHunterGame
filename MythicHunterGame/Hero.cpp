@@ -9,6 +9,8 @@ Hero::Hero(int _power, int _mana, double _health, int _positionX, int _positionY
 	inventory.push_back(newWeapon);
 
 	equippedSword = newWeapon;
+	currentFloor = 1;
+	highestFloorReached = currentFloor;
 }
 
 Hero::~Hero()
@@ -24,6 +26,16 @@ Hero::~Hero()
 	mana = 0;
 	health = 0;
 	power = 0;
+	currentFloor = 0;
+	highestFloorReached = 0;
+	if (equippedArmor != nullptr)
+	{
+		delete equippedArmor;
+	}
+	if (equippedSword != nullptr)
+	{
+		delete equippedSword;
+	}
 }
 
 double Hero::DealDamage(Character* enemy)
@@ -281,4 +293,151 @@ const void Hero::ShowStats(std::ostream& ostr) const
 	ostr << "Health: " << health << '\n';
 	ostr << "Power: " << power << '\n';
 	ostr << "Mana: " << mana << '\n';
+}
+
+const bool Hero::SaveData(std::ostream& out) const
+{
+	if (!Character::SaveData(out))
+	{
+		return false;
+	}
+	if (!out)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	out.write((const char*)&mana, sizeof(mana));
+
+	size_t inventorySize = inventory.size();
+	out.write((const char*)&inventorySize, sizeof(inventorySize));
+	for (const auto& item : inventory)
+	{
+		EquipmentType type = item->GetType();
+		out.write((const char*)&type, sizeof(type));
+		item->SaveData(out);
+	}
+
+	bool isEquipped = equippedSword != nullptr;
+	out.write((const char*)&isEquipped, sizeof(isEquipped));
+	if (isEquipped)
+	{
+		EquipmentType type = equippedSword->GetType();
+		out.write((const char*)&type, sizeof(type));
+		equippedSword->SaveData(out);
+	}
+
+	isEquipped = equippedArmor != nullptr;
+	out.write((const char*)&isEquipped, sizeof(isEquipped));
+	if (isEquipped)
+	{
+		EquipmentType type = equippedArmor->GetType();
+		out.write((const char*)&type, sizeof(type));
+		equippedArmor->SaveData(out);
+	}
+
+	out.write((const char*)&currentFloor, sizeof(currentFloor));
+	out.write((const char*)&highestFloorReached, sizeof(highestFloorReached));
+
+	return true;
+}
+
+const bool Hero::LoadData(std::istream& in)
+{
+	if (!Character::LoadData(in))
+	{
+		return false;
+	}
+	if (!in)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	for (auto item : inventory)
+	{
+		delete item;
+	}
+	inventory.clear();
+	equippedSword = nullptr;
+	equippedArmor = nullptr;
+
+	in.read((char*)&mana, sizeof(mana));
+	
+	size_t inventorySize;
+	in.read((char*)&inventorySize, sizeof(inventorySize));
+	if (inventorySize < 1)
+	{
+		return false;
+	}
+	inventory.resize(inventorySize);
+
+	for (size_t i = 0; i < inventorySize; i++)
+	{
+		EquipmentType type;
+		in.read((char*)&type, sizeof(type));
+		switch (type)
+		{
+			case EquipmentType::Offensive:
+				inventory[i] = new Weapon("Sword");
+				break;
+			case EquipmentType::Defensive:
+				inventory[i] = new Armor("Armor");
+				break;
+			case EquipmentType::Spell:
+				inventory[i] = new Magic("Lightning spell");
+				break;
+			case EquipmentType::Usable:
+				inventory[i] = new Potion("Mana Potion");
+				break;
+		}
+		if (inventory[i])
+		{
+			inventory[i]->LoadData(in);
+		}
+	}
+
+	bool isEquipped;
+	in.read((char*)&isEquipped, sizeof(isEquipped));
+	if (isEquipped)
+	{
+		EquipmentType type;
+		in.read((char*)&type, sizeof(type));
+		equippedSword = new Weapon("Sword");
+		equippedSword->LoadData(in);
+	}
+
+	in.read((char*)&isEquipped, sizeof(isEquipped));
+	if (isEquipped)
+	{
+		EquipmentType type;
+		in.read((char*)&type, sizeof(type));
+		equippedArmor = new Armor("Armor");
+		equippedArmor->LoadData(in);
+	}
+
+	in.read((char*)&currentFloor, sizeof(currentFloor));
+	in.read((char*)&highestFloorReached, sizeof(highestFloorReached));
+
+	return true;
+}
+
+const int Hero::GetCurrentFloor() const
+{
+	return currentFloor;
+}
+
+const int Hero::GetHighestFloorReached() const
+{
+	return highestFloorReached;
+}
+
+const void Hero::NextFloor()
+{
+	MoveToStart();
+	currentFloor++;
+	if (currentFloor > highestFloorReached)
+	{
+		highestFloorReached = currentFloor;
+	}
 }

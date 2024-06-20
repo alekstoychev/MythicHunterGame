@@ -10,10 +10,11 @@ public:
 	const EquipmentType GetType() const override;
 	const void GetItemStats(std::ostream& ostr) const override;
 
-	const double GetItemBonusStat() const override;
 	const double GetSpellCost() const;
+
+	const virtual bool SaveData(std::ostream& out) const override;
+	const virtual bool LoadData(std::istream& in) override;
 private:
-	int damage;
 	int spellCost;
 };
 

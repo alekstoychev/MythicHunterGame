@@ -1,26 +1,26 @@
 #include "Weapon.h"
 
-Weapon::Weapon(std::string name) : Equipment(EquipmentType::Offensive, name), bonusDamagePercent(0)
+Weapon::Weapon(std::string name) : Equipment(EquipmentType::Offensive, name)
 {
 	switch (rarity)
 	{
 	case Rarity::Common:
-		bonusDamagePercent = randomNumberDouble(1.01, 1.10);
+		bonusStat = randomNumberDouble(1.01, 1.10);
 		break;
 	case Rarity::Uncommon:
-		bonusDamagePercent = randomNumberDouble(1.10, 1.20);
+		bonusStat = randomNumberDouble(1.10, 1.20);
 		break;
 	case Rarity::Rare:
-		bonusDamagePercent = randomNumberDouble(1.20, 1.30);
+		bonusStat = randomNumberDouble(1.20, 1.30);
 		break;
 	case Rarity::Epic:
-		bonusDamagePercent = randomNumberDouble(1.30, 1.40);
+		bonusStat = randomNumberDouble(1.30, 1.40);
 		break;
 	case Rarity::Legendary:
-		bonusDamagePercent = randomNumberDouble(1.40, 1.50);
+		bonusStat = randomNumberDouble(1.40, 1.50);
 		break;
 	case Rarity::Mythic:
-		bonusDamagePercent = randomNumberDouble(1.50, 1.60);
+		bonusStat = randomNumberDouble(1.50, 1.60);
 		break;
 	}
 }
@@ -29,7 +29,7 @@ Weapon::~Weapon()
 {
 	rarity = Rarity::Invalid;
 	type = EquipmentType::Invalid;
-	bonusDamagePercent = 0;
+	bonusStat = 0;
 }
 
 const EquipmentType Weapon::GetType() const
@@ -63,10 +63,5 @@ const void Weapon::GetItemStats(std::ostream& ostr) const
 	}
 
 	ostr << std::fixed << std::setprecision(2);
-	ostr << rarityStr << " " << name << " - " << bonusDamagePercent << " ATK %";
-}
-
-const double Weapon::GetItemBonusStat() const
-{
-	return bonusDamagePercent;
+	ostr << rarityStr << " " << name << " - " << bonusStat << " ATK %";
 }

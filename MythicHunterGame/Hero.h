@@ -2,11 +2,15 @@
 
 #include <vector>
 #include <istream>
+#include <fstream>
 
 #include "Character.h"
 #include "Monster.h"
 #include "Equipment.h"
 #include "Weapon.h"
+#include "Armor.h"
+#include "Magic.h"
+#include "Potion.h"
 
 const int inventory_size = 15;
 
@@ -44,12 +48,23 @@ public:
 	void MoveDown();
 	void MoveLeft();
 	void MoveRight();
-	void MoveToStart();
 
+	const virtual bool SaveData(std::ostream& out) const override;
+	const virtual bool LoadData(std::istream& in) override;
+
+	const int GetCurrentFloor() const;
+	const int GetHighestFloorReached() const;
+
+	const void NextFloor();
 private:
 	int mana;
 	std::vector<Equipment*> inventory;
 	Equipment* equippedSword;
 	Equipment* equippedArmor;
+
+	int currentFloor;
+	int highestFloorReached;
+
+	void MoveToStart();
 };
 

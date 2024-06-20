@@ -5,27 +5,27 @@ Magic::Magic(std::string name) : Equipment(EquipmentType::Spell, name)
 	switch (rarity)
 	{
 	case Rarity::Common:
-		damage = randomNumberInt(5, 9);
+		bonusStat = randomNumberInt(5, 9);
 		spellCost = 5;
 		break;
 	case Rarity::Uncommon:
-		damage = randomNumberInt(9, 11);
+		bonusStat = randomNumberInt(9, 11);
 		spellCost = 10;
 		break;
 	case Rarity::Rare:
-		damage = randomNumberInt(11, 14);
+		bonusStat = randomNumberInt(11, 14);
 		spellCost = 15;
 		break;
 	case Rarity::Epic:
-		damage = randomNumberInt(14, 16);
+		bonusStat = randomNumberInt(14, 16);
 		spellCost = 20;
 		break;
 	case Rarity::Legendary:
-		damage = randomNumberInt(16, 18);
+		bonusStat = randomNumberInt(16, 18);
 		spellCost = 25;
 		break;
 	case Rarity::Mythic:
-		damage = randomNumberInt(18, 20);
+		bonusStat = randomNumberInt(18, 20);
 		spellCost = 30;
 		break;
 	}
@@ -35,7 +35,7 @@ Magic::~Magic()
 {
 	rarity = Rarity::Invalid;
 	type = EquipmentType::Invalid;
-	damage = 0;
+	bonusStat = 0;
 }
 
 const EquipmentType Magic::GetType() const
@@ -68,15 +68,36 @@ const void Magic::GetItemStats(std::ostream& ostr) const
 		break;
 	}
 
-	ostr << rarityStr << " " << name << " [" << "Damage: " << damage << ", Spell Cost: " << spellCost << "]";
-}
-
-const double Magic::GetItemBonusStat() const
-{
-	return damage;
+	ostr << rarityStr << " " << name << " [" << "Damage: " << bonusStat << ", Spell Cost: " << spellCost << "]";
 }
 
 const double Magic::GetSpellCost() const
 {
 	return spellCost;
+}
+
+const bool Magic::SaveData(std::ostream& out) const
+{
+	if (!out)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	out.write((const char*)&spellCost, sizeof(spellCost));
+
+	return true;
+}
+
+const bool Magic::LoadData(std::istream& in)
+{
+	if (!in)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	in.read((char*)&spellCost, sizeof(spellCost));
+
+	return true;
 }

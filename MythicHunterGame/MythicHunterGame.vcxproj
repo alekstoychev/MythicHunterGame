@@ -138,6 +138,7 @@
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="MythicHunterGame.cpp" />
     <ClCompile Include="Potion.cpp" />
+    <ClCompile Include="SaveGameSystem.cpp" />
     <ClCompile Include="UtilFuncs.cpp" />
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
@@ -154,6 +155,7 @@
     <ClInclude Include="Monster.h" />
     <ClInclude Include="Potion.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SaveGameSystem.h" />
     <ClInclude Include="UtilFuncs.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>

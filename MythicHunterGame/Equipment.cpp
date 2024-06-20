@@ -37,6 +37,11 @@ Equipment::~Equipment()
 	name = std::string();
 }
 
+const double Equipment::GetItemBonusStat() const
+{
+	return bonusStat;
+}
+
 const std::string Equipment::PickUpNotification() const
 {
 	std::string output = "You picked up a ";
@@ -66,4 +71,44 @@ const std::string Equipment::PickUpNotification() const
 	output += " " + name + "!";
 
 	return output;
+}
+
+const bool Equipment::SaveData(std::ostream& out) const
+{
+	if (!out)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	size_t nameLength = name.size();
+	out.write((const char*)&nameLength, sizeof(nameLength));
+	out.write(name.c_str(), nameLength);
+
+	out.write((const char*)&rarity, sizeof(rarity));
+	out.write((const char*)&type, sizeof(type));
+	out.write((const char*)&bonusStat, sizeof(bonusStat));
+
+	return true;
+}
+
+const bool Equipment::LoadData(std::istream& in)
+{
+	if (!in)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	size_t nameLength;
+	in.read((char*)&nameLength, sizeof(nameLength));
+
+	name.resize(nameLength);
+	in.read((char*)&name[0], nameLength);
+
+	in.read((char*)&rarity, sizeof(rarity));
+	in.read((char*)&type, sizeof(type));
+	in.read((char*)&bonusStat, sizeof(bonusStat));
+
+	return true;
 }

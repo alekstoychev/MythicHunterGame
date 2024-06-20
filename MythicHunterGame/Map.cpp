@@ -12,36 +12,29 @@ void Map::CheckSoftLocksInGeneration()
 {
 	if (map[0][1]->type  != "empty")
 	{
-		map[0][1]->type   = "empty";
-		map[0][1]->symbol = '.';
-
+		map[0][1]->ClearTile();
 	}
 	if (map[0][0]->type  != "empty")
 	{
-		map[0][0]->type   = "empty";
-		map[0][0]->symbol = '.';
+		map[0][0]->ClearTile();
 	}
 	if (map[1][0]->type  != "empty")
 	{
-		map[1][0]->type   = "empty";
-		map[1][0]->symbol = '.';
+		map[1][0]->ClearTile();
 	}
 
 
 	if (map[map_sizeY - 2][map_sizeX - 1]->type  != "empty")
 	{
-		map[map_sizeY - 2][map_sizeX - 1]->type   = "empty";
-		map[map_sizeY - 2][map_sizeX - 1]->symbol = '.';
+		map[map_sizeY - 2][map_sizeX - 1]->ClearTile();
 	}
 	if (map[map_sizeY-1][map_sizeX - 2]->type    != "empty")
 	{
-		map[map_sizeY-1][map_sizeX - 2]->type     = "empty";
-		map[map_sizeY-1][map_sizeX - 2]->symbol   = '.';
+		map[map_sizeY-1][map_sizeX - 2]->ClearTile();
 	}
 	if (map[map_sizeY - 1][map_sizeX - 1]->type  != "empty")
 	{
-		map[map_sizeY - 1][map_sizeX - 1]->type   = "empty";
-		map[map_sizeY - 1][map_sizeX - 1]->symbol = '.';
+		map[map_sizeY - 1][map_sizeX - 1]->ClearTile();
 	}
 }
 
@@ -68,12 +61,110 @@ Map::Tile::Tile(char _symbol, std::string _type, Equipment* _pickUp) : symbol(_s
 
 Map::Tile::Tile(char _symbol, std::string _type, Monster* _monster) : symbol(_symbol), type(_type), pickUp(nullptr), monster(_monster) {}
 
+const void Map::Tile::ClearTile()
+{
+	type = "empty";
+	symbol = '.';
+	pickUp = nullptr;
+	monster = nullptr;
+}
+
 Map::Tile::~Tile()
 {
 	symbol = ' ';
 	type = " ";
-	delete pickUp;
-	delete monster;
+	if (pickUp != nullptr)
+	{
+		delete pickUp;
+	}
+	if (monster != nullptr)
+	{
+		delete monster;
+	}
+}
+
+const bool Map::Tile::SaveData(std::ostream& out) const
+{
+	if (!out)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+
+	out.write((const char*)&symbol, sizeof(symbol));
+
+	size_t nameLength = type.size();
+	out.write((const char*)&nameLength, sizeof(nameLength));
+	out.write(type.c_str(), nameLength);
+
+	bool hasMonster = monster != nullptr;
+	out.write((const char*)&hasMonster, sizeof(hasMonster));
+	if (hasMonster)
+	{
+		monster->SaveData(out);
+	}
+
+	bool hasPickUp = pickUp != nullptr;
+	out.write((const char*)&hasPickUp, sizeof(hasPickUp));
+	if (hasPickUp)
+	{
+		EquipmentType pickUpType = pickUp->GetType();
+		out.write((const char*)&pickUpType, sizeof(pickUpType));
+		pickUp->SaveData(out);
+	}
+
+	return true;
+}
+
+const bool Map::Tile::LoadData(std::istream& in)
+{
+	in.read((char*)&symbol, sizeof(symbol));
+
+	size_t nameLength;
+	in.read((char*)&nameLength, sizeof(nameLength));
+
+	type.resize(nameLength);
+	in.read((char*)&type[0], nameLength);
+
+
+	bool hasMonster;
+	in.read((char*)&hasMonster, sizeof(hasMonster));
+	if (hasMonster)
+	{
+		monster = new Monster();
+		monster->LoadData(in);
+	}
+
+	bool hasPickUp;
+	in.read((char*)&hasPickUp, sizeof(hasPickUp));
+	if (hasPickUp)
+	{
+		EquipmentType pickUpType;
+		in.read((char*)&pickUpType, sizeof(pickUpType));
+		switch (pickUpType)
+		{
+		case EquipmentType::Offensive:
+			pickUp = new Weapon("");
+			break;
+		case EquipmentType::Defensive:
+			pickUp = new Armor("");
+			break;
+		case EquipmentType::Spell:
+			pickUp = new Magic("");
+			break;
+		case EquipmentType::Usable:
+			pickUp = new Potion("");
+			break;
+		default:
+			std::cerr << "Invalid pick up type" << '\n';
+			return false;
+		}
+
+		pickUp->LoadData(in);
+	}
+
+	return true;
 }
 
 void Map::GenerateNewMap()
@@ -119,8 +210,10 @@ Equipment* Map::GenerateItem() const
 	case 2:
 		return new Magic("Lightning spell");
 	case 3:
-		return new Potion("Mana");
+		return new Potion("Mana Potion");
 	}
+
+	return new Weapon("invalid");
 }
 
 void Map::EnemyKilled(Monster* monster)
@@ -133,6 +226,7 @@ void Map::EnemyKilled(Monster* monster)
 		map[monsterX][monsterY]->type = "empty";
 		map[monsterX][monsterY]->symbol = '.';
 		delete map[monsterX][monsterY]->monster;
+		map[monsterX][monsterY]->monster = nullptr;
 	}
 }
 
@@ -155,6 +249,48 @@ const bool Map::PlayerPickUpItem(Hero* player, Tile* tile, std::string& output) 
 	output = "invalid item in tile";
 
 	return false;
+}
+
+const bool Map::SaveData(std::ostream& out) const
+{
+	if (!out)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	for (int i = 0; i < map_sizeX; i++)
+	{
+		for (int j = 0; j < map_sizeY; j++)
+		{
+			map[i][j]->SaveData(out);
+		}
+	}
+
+	return true;
+}
+
+const bool Map::LoadData(std::istream& in)
+{
+	if (!in)
+	{
+		std::cerr << "Invalid file" << '\n';
+		return false;
+	}
+
+	map.clear(); 
+	map.resize(map_sizeX);
+	for (int i = 0; i < map_sizeX; i++)
+	{
+		map[i].resize(map_sizeY);
+		for (int j = 0; j < map_sizeY; j++)
+		{
+			map[i][j] = new Tile(' ', "");
+			map[i][j]->LoadData(in);
+		}
+	}
+
+	return true;
 }
 
 bool Map::IsPositionObstructed(const int y, const int x) const
@@ -180,6 +316,7 @@ void Map::MovePlayerUp(bool& hasEnemy, Monster*& monster, Hero* player, std::str
 			{
 				map[newPosition][playerX]->type = "empty";
 				map[newPosition][playerX]->symbol = '.';
+				map[newPosition][playerX]->pickUp = nullptr;
 			}
 		}
 		else if (map[newPosition][playerX]->type == "monster")
@@ -207,6 +344,7 @@ void Map::MovePlayerDown(bool& hasEnemy, Monster*& monster, Hero* player, std::s
 			{
 				map[newPosition][playerX]->type = "empty";
 				map[newPosition][playerX]->symbol = '.';
+				map[newPosition][playerX]->pickUp = nullptr;
 			}
 		}
 		else if (map[newPosition][playerX]->type == "monster")
@@ -233,6 +371,7 @@ void Map::MovePlayerLeft(bool& hasEnemy, Monster*& monster, Hero* player, std::s
 			{
 				map[playerY][newPosition]->type = "empty";
 				map[playerY][newPosition]->symbol = '.';
+				map[playerY][newPosition]->pickUp = nullptr;
 			}
 		}
 		else if (map[playerY][newPosition]->type == "monster")
@@ -259,6 +398,7 @@ void Map::MovePlayerRight(bool& hasEnemy, Monster*& monster, Hero* player, std::
 			{
 				map[playerY][newPosition]->type = "empty";
 				map[playerY][newPosition]->symbol = '.';
+				map[playerY][newPosition]->pickUp = nullptr;
 			}
 		}
 		if (map[playerY][newPosition]->type == "monster")
@@ -296,6 +436,6 @@ const void Map::PrintMap(bool& isPlayerFinished, Hero* player) const
 	if (playerX == map_sizeX - 1 && playerY == map_sizeY - 1)
 	{
 		isPlayerFinished = true;
-		player->MoveToStart();
+		player->NextFloor();
 	}
 }

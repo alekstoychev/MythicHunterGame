@@ -1,26 +1,26 @@
 #include "Armor.h"
 
-Armor::Armor(std::string name) : Equipment(EquipmentType::Defensive, name), damageReduction(0)
+Armor::Armor(std::string name) : Equipment(EquipmentType::Defensive, name)
 {
 	switch (rarity)
 	{
 	case Rarity::Common:
-		damageReduction = randomNumberDouble(0.05, 0.10);
+		bonusStat = randomNumberDouble(0.05, 0.10);
 		break;
 	case Rarity::Uncommon:
-		damageReduction = randomNumberDouble(0.10, 0.25);
+		bonusStat = randomNumberDouble(0.10, 0.25);
 		break;
 	case Rarity::Rare:
-		damageReduction = randomNumberDouble(0.25, 0.30);
+		bonusStat = randomNumberDouble(0.25, 0.30);
 		break;
 	case Rarity::Epic:
-		damageReduction = randomNumberDouble(0.30, 0.35);
+		bonusStat = randomNumberDouble(0.30, 0.35);
 		break;
 	case Rarity::Legendary:
-		damageReduction = randomNumberDouble(0.35, 0.45);
+		bonusStat = randomNumberDouble(0.35, 0.45);
 		break;
 	case Rarity::Mythic:
-		damageReduction = randomNumberDouble(0.45, 0.50);
+		bonusStat = randomNumberDouble(0.45, 0.50);
 		break;
 	}
 }
@@ -34,7 +34,7 @@ Armor::~Armor()
 {
 	rarity = Rarity::Invalid;
 	type = EquipmentType::Invalid;
-	damageReduction = 0;
+	bonusStat = 0;
 }
 
 
@@ -64,10 +64,5 @@ const void Armor::GetItemStats(std::ostream& ostr) const
 	}
 
 
-	ostr << rarityStr << " " << name << " - " << damageReduction << " Armor";
-}
-
-const double Armor::GetItemBonusStat() const
-{
-	return damageReduction;
+	ostr << rarityStr << " " << name << " - " << bonusStat << " Armor";
 }

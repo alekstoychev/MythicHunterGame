@@ -1,6 +1,7 @@
 #pragma once
 
-#include <ostream>
+#include <iostream>
+#include <fstream>
 
 class Character
 {
@@ -17,6 +18,9 @@ public:
 
 	const virtual int GetPositionX() const;
 	const virtual int GetPositionY() const;
+
+	const virtual bool SaveData(std::ostream& out) const;
+	const virtual bool LoadData(std::istream& in);
 
 protected:
 	double health;
