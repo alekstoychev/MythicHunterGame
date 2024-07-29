@@ -32,6 +32,11 @@ Potion::~Potion()
 	bonusStat = 0;
 }
 
+const Rarity Potion::GetRarity() const
+{
+	return rarity;
+}
+
 const EquipmentType Potion::GetType() const
 {
 	return type;

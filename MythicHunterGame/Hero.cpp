@@ -1,7 +1,8 @@
 #include "Hero.h"
 #include "Magic.h"
 
-Hero::Hero(int _power, int _mana, double _health, int _positionX, int _positionY) : Character(_power, _health, _positionX, _positionY), mana(_mana), equippedArmor(nullptr)
+Hero::Hero(int _power, int _mana, double _health, int _positionX, int _positionY) : 
+	Character(_power, _health, _positionX, _positionY), mana(_mana), equippedArmor(nullptr), currXP(0), gold(0)
 {
 	Weapon* newWeapon = new Weapon("Sword");
 
@@ -11,6 +12,13 @@ Hero::Hero(int _power, int _mana, double _health, int _positionX, int _positionY
 	equippedSword = newWeapon;
 	currentFloor = 1;
 	highestFloorReached = currentFloor;
+
+	xpRoad = LevelSystem::GenerateXPRoad(100, 10, 3);
+
+	if (!LevelSystem::ValidateXPRoad(xpRoad))
+	{
+		std::cout << "xp road failed to generate" << '\n';
+	}
 }
 
 Hero::~Hero()
@@ -28,14 +36,13 @@ Hero::~Hero()
 	power = 0;
 	currentFloor = 0;
 	highestFloorReached = 0;
-	if (equippedArmor != nullptr)
-	{
-		delete equippedArmor;
-	}
-	if (equippedSword != nullptr)
-	{
-		delete equippedSword;
-	}
+
+	equippedArmor = nullptr;
+	equippedSword = nullptr;
+
+	ListNode::destroy(xpRoad);
+	currXP = 0;
+	gold = 0;
 }
 
 double Hero::DealDamage(Character* enemy)
@@ -83,7 +90,7 @@ void Hero::Heal(double amount)
 }
 
 
-// Returns true if it has space in the storage and has successfully added the item
+// Returns true if it has space in the storage and has successfully 
 bool Hero::PickupNewItem(Equipment* newItem)
 {
 	if (inventory.size() < inventory_size)
@@ -121,6 +128,15 @@ bool Hero::ChangeEquippedArmor(int index)
 	}
 
 	return false;
+}
+
+void Hero::SpendGold(int amount)
+{
+	gold -= amount;
+	if (gold < 0)
+	{
+		gold = 0;
+	}
 }
 
 double Hero::SelectAndUseSpell(std::ostream& ostr, std::istream& istr, Character* enemy)
@@ -247,6 +263,11 @@ const bool Hero::IsInventoryFull() const
 	return false;
 }
 
+const int Hero::GetGoldAmount() const
+{
+	return gold;
+}
+
 void Hero::MoveUp()
 {
 	positionY--;
@@ -289,6 +310,16 @@ const bool Hero::IsAlive() const
 }
 
 const void Hero::ShowStats(std::ostream& ostr) const
+{
+	ostr << "Health: " << health << '\n';
+	ostr << "Power: " << power << '\n';
+	ostr << "Mana: " << mana << '\n';
+	ostr << "Gold: " << gold << '\n';
+	ostr << "Current XP: " << currXP << '\n';
+	ostr << "XP needed for level up: " << xpRoad->requiredXP << '\n';
+}
+
+const void Hero::ShowCombatStats(std::ostream& ostr) const
 {
 	ostr << "Health: " << health << '\n';
 	ostr << "Power: " << power << '\n';
@@ -339,7 +370,18 @@ const bool Hero::SaveData(std::ostream& out) const
 	out.write((const char*)&currentFloor, sizeof(currentFloor));
 	out.write((const char*)&highestFloorReached, sizeof(highestFloorReached));
 
-	return true;
+	out.write((const char*)&currXP, sizeof(currXP));
+	out.write((const char*)&gold, sizeof(gold));
+
+	if (LevelSystem::SaveXPRoad(xpRoad, out))
+	{
+		return true;
+	}
+	else
+	{
+		std::cout << "Failed to save xp road" << '\n';
+		return false;
+	}
 }
 
 const bool Hero::LoadData(std::istream& in)
@@ -419,7 +461,18 @@ const bool Hero::LoadData(std::istream& in)
 	in.read((char*)&currentFloor, sizeof(currentFloor));
 	in.read((char*)&highestFloorReached, sizeof(highestFloorReached));
 
-	return true;
+	in.read((char*)&currXP, sizeof(currXP));
+	in.read((char*)&gold, sizeof(gold));
+
+	if (LevelSystem::LoadXPRoad(xpRoad, in))
+	{
+		return true;
+	}
+	else
+	{
+		std::cout << "Failed to load xp road" << '\n';
+		return false;
+	}
 }
 
 const int Hero::GetCurrentFloor() const
@@ -440,4 +493,11 @@ const void Hero::NextFloor()
 	{
 		highestFloorReached = currentFloor;
 	}
+}
+
+const void Hero::DefeatedEnemy(int xpAmount, int goldAmount, std::string& message)
+{
+	currXP += xpAmount;
+	gold += goldAmount;
+	LevelSystem::UpdateLevel(xpRoad, currXP, gold, message);
 }

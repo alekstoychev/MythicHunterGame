@@ -1,8 +1,9 @@
 #include "Monster.h"
 
-Monster::Monster() : Character(1, 1, 0, 0) {}
+Monster::Monster() : Character(1, 1, 0, 0), xpDrop(0), goldDrop(0) {}
 
-Monster::Monster(int _power, double _health, int _positionX, int _positionY) : Character(_power, _health, _positionX, _positionY) {}
+Monster::Monster(int _power, double _health, int _positionX, int _positionY, int _xpDrop, int _goldDrop) 
+	: Character(_power, _health, _positionX, _positionY), xpDrop(_xpDrop), goldDrop(_goldDrop) {}
 
 Monster::Monster(const Monster& other) : Character(other) {}
 
@@ -52,4 +53,14 @@ const void Monster::GetPosition(int& outX, int& outY) const
 {
 	outX = positionX;
 	outY = positionY;
+}
+
+const int Monster::GetXpDrop() const
+{
+	return xpDrop;
+}
+
+const int Monster::GetGoldDrop() const
+{
+	return goldDrop;
 }

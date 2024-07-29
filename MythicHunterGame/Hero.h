@@ -12,6 +12,8 @@
 #include "Magic.h"
 #include "Potion.h"
 
+#include "LevelSystem.h"
+
 const int inventory_size = 15;
 
 class Monster;
@@ -31,10 +33,12 @@ public:
 
 	const bool IsAlive() const override;
 	const void ShowStats(std::ostream& ostr) const override;
+	const void ShowCombatStats(std::ostream& ostr) const;
 
 	bool PickupNewItem(Equipment* newItem);
 	bool ChangeEquippedWeapon(int index);
 	bool ChangeEquippedArmor(int index);
+	void SpendGold(int amount);
 
 	double SelectAndUseSpell(std::ostream& ostr, std::istream& istr, Character* enemy);
 	double UsePotion(std::ostream& ostr, std::istream& istr);
@@ -42,7 +46,8 @@ public:
 	const void ShowInventory(std::ostream& ostr) const;
 	const void ShowCurrentWeapon(std::ostream& ostr) const;
 	const void ShowEquipped(std::ostream& ostr) const;
-	const bool IsInventoryFull() const;
+	const bool IsInventoryFull() const; 
+	const int GetGoldAmount() const;
 
 	void MoveUp();
 	void MoveDown();
@@ -56,6 +61,8 @@ public:
 	const int GetHighestFloorReached() const;
 
 	const void NextFloor();
+
+	const void DefeatedEnemy(int xpAmount, int goldAmount, std::string& message);
 private:
 	int mana;
 	std::vector<Equipment*> inventory;
@@ -66,5 +73,10 @@ private:
 	int highestFloorReached;
 
 	void MoveToStart();
+
+	ListNode* xpRoad;
+	int currXP;
+
+	int gold;
 };
 

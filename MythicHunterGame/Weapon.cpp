@@ -32,6 +32,11 @@ Weapon::~Weapon()
 	bonusStat = 0;
 }
 
+const Rarity Weapon::GetRarity() const
+{
+	return rarity;
+}
+
 const EquipmentType Weapon::GetType() const
 {
 	return type;

@@ -7,6 +7,7 @@ public:
 	Magic(std::string name);
 	virtual ~Magic();
 
+	const Rarity GetRarity() const override;
 	const EquipmentType GetType() const override;
 	const void GetItemStats(std::ostream& ostr) const override;
 

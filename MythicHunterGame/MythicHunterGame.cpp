@@ -3,6 +3,7 @@
 
 #include "Hero.h"
 #include "Monster.h"
+#include "ShopKeeper.h"
 
 #include "Weapon.h"
 #include "Armor.h"
@@ -17,7 +18,53 @@
 
 #include "UtilFuncs.h"
 
-const char* game_version = "1.5.0";
+const char* game_version = "1.6.0";
+
+const static void ShopKeeperEvent(Hero* player, ShopKeeper* shopKeeper)
+{
+    system("cls");
+
+    std::cout << "A shopkeeper has stopped nearby! \n";
+    std::cout << "Would you like to check out his offers? \n";
+    std::cout << "\n1. yes \n2. no \n";
+    int input;
+    std::cin >> input;
+
+    if (input != 1)
+    {
+        return;
+    }
+
+    while (true)
+    {
+        system("cls");
+        std::cout << "Shopkeer:\n";
+        shopKeeper->DisplayShop(std::cout);
+
+        std::cout << "\nCurrent gold amount: " << player->GetGoldAmount() << '\n';
+
+        std::cout << "Which item would you like to purchase? \n";
+
+        int input2;
+        std::cin >> input2;
+        if (input2 >= 5 || input2 <= 0)
+        {
+            break;
+        }
+
+
+        std::function<bool(Equipment*)> lambdaFunction =
+            [&player](Equipment* newItem) { return player->PickupNewItem(newItem); };
+
+        int amountGold = 0;
+        
+        player->SpendGold(
+            shopKeeper->PurchaseItem(--input2, player->GetGoldAmount(), lambdaFunction)
+            );
+
+        _getch();
+    }
+}
 
 const static void WelcomeScreen()
 {
@@ -37,14 +84,8 @@ int main()
 {
     Hero* player = new Hero(10, 5, 20, 0, 0);
     Map* gameMap = new Map();
-    InventoryManager* inventoryManager = new InventoryManager();
-    CombatSystem* combatSystem = new CombatSystem();
     SaveGameSystem* saveGameSystem = new SaveGameSystem();
-
-    bool isLevelComplete = false;
-    bool isPlayerDone = false;
-
-    std::string pickUpMessage;
+    ShopKeeper* shopKeeper = new ShopKeeper(player->GetCurrentFloor());
 
     WelcomeScreen();
     if (saveGameSystem->DoesSaveFileExist())
@@ -60,12 +101,31 @@ int main()
         }
     }
     
+
+    std::string pickUpMessage;
+    bool isLevelComplete = false;
+    bool isPlayerDone = false;
+
+    int baseShopEventChance = 10;
+
     while (!isPlayerDone)
     {
         system("cls");
         gameMap->PrintMap(isLevelComplete, player);
         if (isLevelComplete)
         {
+            int shopChance = baseShopEventChance + randomNumberInt(0, 100);
+            if (shopChance > 80 || player->GetCurrentFloor() % 10 == 0)
+            {
+                baseShopEventChance = 10;
+                ShopKeeperEvent(player, shopKeeper);
+                shopKeeper->GenerateNewItems(player->GetCurrentFloor());
+            }
+            else
+            {
+                baseShopEventChance += 10;
+            }
+
             isLevelComplete = false;
             gameMap->GenerateNewMap();
             continue;
@@ -77,6 +137,9 @@ int main()
         std::cout << "Your stats:" << '\n';
         player->ShowStats(std::cout);
         std::cout << '\n';
+
+        
+
 
         if (!pickUpMessage.empty())
         {
@@ -113,7 +176,7 @@ int main()
             gameMap->GenerateNewMap();
             break;
         case 'i':
-            inventoryManager->OpenInventory(player);
+            InventoryManager::OpenInventory(player);
             break;
         case 'q':
             isPlayerDone = true;
@@ -125,7 +188,7 @@ int main()
 
         if (hasEnemy)
         {
-            combatSystem->BeginCombat(player, encounter);
+            CombatSystem::BeginCombat(player, encounter, pickUpMessage);
             if (!player->IsAlive())
             {
                 isPlayerDone = true;

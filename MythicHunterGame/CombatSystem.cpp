@@ -1,6 +1,6 @@
 #include "CombatSystem.h"
 
-const void CombatSystem::BeginCombat(Hero* player, Monster* monster) const
+const void CombatSystem::BeginCombat(Hero* player, Monster* monster, std::string& message)
 {
     system("cls");
     std::cout << "You have entered combat!" << '\n';
@@ -8,7 +8,7 @@ const void CombatSystem::BeginCombat(Hero* player, Monster* monster) const
     while (true)
     {
         std::cout << "Your stats:" << '\n';
-        player->ShowStats(std::cout);
+        player->ShowCombatStats(std::cout);
         std::cout << '\n';
         std::cout << "Enemy stats:" << '\n';
         monster->ShowStats(std::cout);
@@ -42,9 +42,14 @@ const void CombatSystem::BeginCombat(Hero* player, Monster* monster) const
         if (!monster->IsAlive())
         {
             playerLostHP *= 0.5;
-            std::cout << "You killed it!" << '\n';
+
+            int xpGain = monster->GetXpDrop();
+            int goldGain = monster->GetGoldDrop();
+
+            std::cout << "You killed it! It dropped " << xpGain << "xp and " << goldGain << " gold!" << '\n';
             std::cout << "You recovered " << playerLostHP << " health." << '\n';
             player->Heal(playerLostHP);
+            player->DefeatedEnemy(xpGain, goldGain, message);
             _getch();
             return;
         }

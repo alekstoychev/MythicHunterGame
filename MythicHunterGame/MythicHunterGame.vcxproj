@@ -133,12 +133,14 @@
     <ClCompile Include="Equipment.cpp" />
     <ClCompile Include="Hero.cpp" />
     <ClCompile Include="InventoryManager.cpp" />
+    <ClCompile Include="LevelSystem.cpp" />
     <ClCompile Include="Magic.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="MythicHunterGame.cpp" />
     <ClCompile Include="Potion.cpp" />
     <ClCompile Include="SaveGameSystem.cpp" />
+    <ClCompile Include="ShopKeeper.cpp" />
     <ClCompile Include="UtilFuncs.cpp" />
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
@@ -150,12 +152,14 @@
     <ClInclude Include="Equipment.h" />
     <ClInclude Include="Hero.h" />
     <ClInclude Include="InventoryManager.h" />
+    <ClInclude Include="LevelSystem.h" />
     <ClInclude Include="Magic.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="Potion.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SaveGameSystem.h" />
+    <ClInclude Include="ShopKeeper.h" />
     <ClInclude Include="UtilFuncs.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>

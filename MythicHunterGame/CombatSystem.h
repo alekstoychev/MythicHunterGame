@@ -8,6 +8,6 @@
 
 struct CombatSystem
 {
-	const void BeginCombat(Hero* player, Monster* monster) const;
+	static const void BeginCombat(Hero* player, Monster* monster, std::string& message);
 };
 

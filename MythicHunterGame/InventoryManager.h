@@ -7,7 +7,7 @@
 
 struct InventoryManager
 {
-	const void OpenInventory(Hero* player) const;
-	const void ChangeEquipped(Hero* player) const;
+	static const void OpenInventory(Hero* player);
+	static const void ChangeEquipped(Hero* player);
 };
 

@@ -38,6 +38,11 @@ Magic::~Magic()
 	bonusStat = 0;
 }
 
+const Rarity Magic::GetRarity() const
+{
+	return rarity;
+}
+
 const EquipmentType Magic::GetType() const
 {
 	return EquipmentType::Spell;

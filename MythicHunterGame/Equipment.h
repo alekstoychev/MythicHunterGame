@@ -14,6 +14,7 @@ public:
 	Equipment(EquipmentType _type, std::string& _name);
 	virtual ~Equipment();
 
+	const virtual Rarity GetRarity() const = 0;
 	const virtual EquipmentType GetType() const = 0;
 	const virtual void GetItemStats(std::ostream& ostr) const = 0;
 

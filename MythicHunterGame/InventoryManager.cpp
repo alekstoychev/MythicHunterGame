@@ -1,6 +1,6 @@
 #include "InventoryManager.h"
 
-const void InventoryManager::OpenInventory(Hero* player) const
+const void InventoryManager::OpenInventory(Hero* player)
 {
     int input;
 
@@ -12,19 +12,26 @@ const void InventoryManager::OpenInventory(Hero* player) const
     std::cout << '\n' << "Currently equipped:" << '\n';
     player->ShowEquipped(std::cout);
 
-    std::cout << '\n' << "Would you like to change anything?" << '\n';
-    std::cout << "1. yes" << '\n';
-    std::cout << "2. no" << '\n';
-    std::cout << "Use the numbers" << '\n';
-
-    std::cin >> input;
-    if (input == 1)
+    while (true)
     {
-        ChangeEquipped(player);
+        std::cout << '\n' << "Would you like to change anything?" << '\n';
+        std::cout << "1. yes" << '\n';
+        std::cout << "2. no" << '\n';
+        std::cout << "Use the numbers" << '\n';
+
+        std::cin >> input;
+        if (input == 1)
+        {
+            ChangeEquipped(player);
+        }
+        else
+        {
+            break;
+        }
     }
 }
 
-const void InventoryManager::ChangeEquipped(Hero* player) const
+const void InventoryManager::ChangeEquipped(Hero* player)
 {
 
     int input2;

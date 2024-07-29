@@ -25,6 +25,11 @@ Armor::Armor(std::string name) : Equipment(EquipmentType::Defensive, name)
 	}
 }
 
+const Rarity Armor::GetRarity() const
+{
+	return rarity;
+}
+
 const EquipmentType Armor::GetType() const
 {
 	return type;
